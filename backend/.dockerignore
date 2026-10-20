@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+node_modules
+dist
+scripts
+supabase
+*.log
+.audit-checkpoints.jsonl
+certs

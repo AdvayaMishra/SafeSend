@@ -1,0 +1,5 @@
+{
+  "name":"@secureshare/sdk","version":"0.1.0","type":"module","private":true,
+  "exports":"./dist/index.js","types":"./dist/index.d.ts",
+  "scripts":{"build":"node ../backend/node_modules/typescript/bin/tsc -p tsconfig.json","pretest":"npm run build","test":"node test.mjs"}
+}

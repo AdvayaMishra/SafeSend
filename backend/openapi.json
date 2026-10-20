@@ -1,0 +1,2086 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "SecureShare API",
+    "version": "1.0.0",
+    "description": "Legacy /api/secrets aliases also remain available. Decryption keys stay client-side. Passkeys and email invitation delivery are not implemented."
+  },
+  "paths": {
+    "/api/v1/secrets": {
+      "post": {
+        "summary": "Create a client-encrypted secret",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "encryptedContent",
+                  "iv",
+                  "expiresAt"
+                ],
+                "properties": {
+                  "encryptedContent": {
+                    "type": "string",
+                    "description": "Client-side AES-GCM ciphertext, base64. Never plaintext."
+                  },
+                  "iv": {
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 16
+                  },
+                  "expiresAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "accessStart": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "accessEnd": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "maxViews": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1
+                  },
+                  "burnAfterRead": {
+                    "type": "boolean"
+                  },
+                  "password": {
+                    "type": "string",
+                    "maxLength": 1024,
+                    "description": "Optional access password; not the encryption key."
+                  },
+                  "recipientEmail": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "workspaceId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      },
+      "get": {
+        "summary": "List accessible secret IDs",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}": {
+      "get": {
+        "summary": "Public safe secret metadata",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/access": {
+      "post": {
+        "summary": "Consume one view atomically and receive ciphertext",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/dashboard": {
+      "get": {
+        "summary": "Authorized metadata and events",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/revoke": {
+      "post": {
+        "summary": "Revoke access and delivery tokens",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/policy": {
+      "patch": {
+        "summary": "Suspend or resume access",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "suspended"
+                ],
+                "properties": {
+                  "suspended": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/account": {
+      "get": {
+        "summary": "Current verified session identity",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/workspaces": {
+      "get": {
+        "summary": "Accessible memberships",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create workspace",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/current": {
+      "get": {
+        "summary": "Current workspace and role permissions",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/workspaces/current/invitations": {
+      "post": {
+        "summary": "Create a one-time manual invitation link",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "ADMIN",
+                      "MEMBER",
+                      "AUDITOR"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/invitations/accept": {
+      "post": {
+        "summary": "Accept invitation as its verified recipient",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/current/members/{id}": {
+      "patch": {
+        "summary": "Owner changes member role",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "ADMIN",
+                      "MEMBER",
+                      "AUDITOR"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Owner removes non-owner member",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/keys": {
+      "get": {
+        "summary": "List key summaries",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create scoped API key, raw value shown once",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "scopes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "secrets:create",
+                        "secrets:read",
+                        "secrets:revoke",
+                        "audit:read"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/keys/{id}": {
+      "delete": {
+        "summary": "Revoke owned key",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/keys/{id}/rotate": {
+      "post": {
+        "summary": "Atomically rotate owned key",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/keys/{id}/usage": {
+      "get": {
+        "summary": "Owned key usage",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/audit": {
+      "get": {
+        "summary": "Authorized per-secret audit records",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/audit/verify": {
+      "get": {
+        "summary": "Verify hash links and local signed checkpoints",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/threats": {
+      "get": {
+        "summary": "Authorized sliding-window incidents",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/analytics": {
+      "get": {
+        "summary": "Authorized event counts and capped event history",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "summary": "Persistent account notices",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/notifications/{id}/read": {
+      "post": {
+        "summary": "Persist read state",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/notifications/preferences": {
+      "get": {
+        "summary": "Notification preferences",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Set in-app notification preferences",
+        "parameters": [],
+        "security": [
+          {
+            "Session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "threat_alerts": {
+                    "type": "boolean"
+                  },
+                  "access_notifications": {
+                    "type": "boolean"
+                  },
+                  "expiration_notices": {
+                    "type": "boolean"
+                  },
+                  "email_delivery": {
+                    "type": "boolean",
+                    "const": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/attachments": {
+      "post": {
+        "summary": "Sender uploads legacy encrypted file (multipart file and encryptedKeyBundle)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "encryptedKeyBundle"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "encryptedKeyBundle": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "List encrypted file metadata with delivery bearer token",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DeliveryToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/attachments/{attachmentId}/download": {
+      "get": {
+        "summary": "Download legacy encrypted bytes with delivery bearer token",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attachmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DeliveryToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/uploads": {
+      "post": {
+        "summary": "Create resumable encrypted upload session",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "totalChunks": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 26
+                  },
+                  "totalBytes": {
+                    "type": "integer",
+                    "minimum": 17
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/uploads/{session}": {
+      "get": {
+        "summary": "Sender resumes from committed chunk hashes",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Mark incomplete session aborted",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/uploads/{session}/chunks/{index}": {
+      "put": {
+        "summary": "Sender uploads ciphertext bytes with X-Chunk-SHA256",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Chunk-SHA256",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Recipient downloads encrypted chunk with delivery bearer token",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "index",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "DeliveryToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/secrets/{id}/uploads/{session}/complete": {
+      "post": {
+        "summary": "Atomically finalize encrypted attachment metadata",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "session",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "ApiKey": []
+          },
+          {
+            "ManagementToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "encryptedKeyBundle": {
+                    "type": "string",
+                    "maxLength": 32768
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Dependency/liveness check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/test-db": {
+      "get": {
+        "summary": "Dependency/liveness check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    },
+    "/api/metrics": {
+      "get": {
+        "summary": "Current-process operational counters",
+        "parameters": [],
+        "security": [
+          {
+            "OperationsToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation; see API_DOCUMENTATION.md for returned fields."
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Policy or scope denied"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "410": {
+            "description": "Expired/revoked/consumed"
+          },
+          "429": {
+            "description": "Temporary rate limit"
+          },
+          "503": {
+            "description": "Dependency unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Session": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Supabase JWT"
+      },
+      "ApiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Scoped ss_ API key"
+      },
+      "DeliveryToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Short-lived attachment token issued by successful secret consumption"
+      },
+      "ManagementToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Management-Token"
+      },
+      "OperationsToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Operations-Token"
+      }
+    }
+  }
+}
