@@ -1,0 +1,36 @@
+# Free demo backend; Supabase remains the database/Auth/storage provider.
+# Account access and environment values are configured during Blueprint creation.
+services:
+  - type: web
+    name: safesend-api
+    runtime: node
+    plan: free
+    branch: master
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: EVENT_HMAC_KEY
+        generateValue: true
+      - key: AUDIT_SIGNING_KEY
+        generateValue: true
+      - key: OPERATIONS_TOKEN
+        generateValue: true
+      - key: AUDIT_CHECKPOINT_FILE
+        value: /tmp/safesend-audit-checkpoints.jsonl
+      - key: ENABLE_LIFECYCLE_WORKER
+        value: "false"
+      # Verify the deployed proxy path before enabling forwarded IP trust.
+      - key: TRUST_PROXY_HOPS
+        value: "0"
