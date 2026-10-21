@@ -6,7 +6,7 @@
 
 Browser-encrypted messages and files, with expiring links, access controls, and workspace collaboration.
 
-[Get started](#getting-started) · [How it works](#how-it-works) · [Documentation](#documentation) · [Project status](#project-status)
+[Live demo](https://safesend-three.vercel.app) · [Get started](#getting-started) · [How it works](#how-it-works) · [Documentation](#documentation) · [Project status](#project-status)
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
 ![React 19](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)
@@ -14,13 +14,19 @@ Browser-encrypted messages and files, with expiring links, access controls, and 
 ![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3FCF8E?logo=supabase&logoColor=white)
 [![MIT license](https://img.shields.io/badge/License-MIT-8B5CF6)](LICENSE)
 
-**Working development build · Production hardening in progress**
+**Public development demo · Production hardening in progress**
 
 </div>
 
 ---
 
 SafeSend helps you share sensitive messages and files without leaving a permanently accessible copy on a public link. Encrypt content in your browser, choose its access policy, and share the complete link with your recipient. Manage access through a sender dashboard or collaborate through a workspace.
+
+## Live demo
+
+**[Open SafeSend](https://safesend-three.vercel.app)** — no local installation needed.
+
+The frontend runs on Vercel and the backend on Render Free, connected to the development Supabase project. The backend can take about a minute to wake after inactivity. Use disposable demo content; passkeys, production email redirects, and durable independent audit checkpoints remain unverified or unconfigured. See [demo deployment notes](DEMO_DEPLOYMENT.md).
 
 ## Features
 

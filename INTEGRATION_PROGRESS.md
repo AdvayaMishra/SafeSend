@@ -91,3 +91,7 @@ Tests: backend/scripts/test-core.mjs, test-platform.mjs, test-chunks.mts, test-c
 OpenAPI: backend/openapi.json; generator backend/scripts/generate-openapi.mjs.
 Credentials: ignored backend/.env and frontendv2/.env.local; never print values.
 Public database CA: backend/certs/prod-ca-2021.crt (verified TLS remains enabled).
+
+## Public development demo — 2026-10-21
+
+A development demo is now hosted at https://safesend-three.vercel.app with the API at https://safesend-api-62wd.onrender.com. This supersedes earlier statements that the application is local-only. It is not a production release. See DEMO_DEPLOYMENT.md for current hosting configuration, verification, manual deployment workflow, and outstanding Auth/operational work.

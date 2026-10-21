@@ -64,3 +64,7 @@ Pass the recorded suites in a separate deployment-test project, verify mailbox a
 Auth redirects, establish durable independent audit checkpoint storage, complete
 pagination/load tests and production monitoring, confirm storage retention/backups,
 and test real devices/cameras. Obtain explicit production approval before deployment.
+
+## Public development demo — 2026-10-21
+
+A development demo is now hosted at https://safesend-three.vercel.app with the API at https://safesend-api-62wd.onrender.com. This supersedes earlier statements that the application is local-only. It is not a production release. See DEMO_DEPLOYMENT.md for current hosting configuration, verification, manual deployment workflow, and outstanding Auth/operational work.
